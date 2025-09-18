@@ -1,5 +1,5 @@
 /* global.css adaptado para Tailwind v4 y tu proyecto AquaManta */
-
+@import "tailwindcss"; 
 :root {
   --primary-blue: #0ea5e9;
   --primary-dark: #0284c7;
