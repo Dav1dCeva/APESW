@@ -1,0 +1,28 @@
+# Práctica 2 - Arquitectura del Dominio con Métodos Asíncronos
+
+## 👨‍💻 Integrantes
+- David Cevallos– Entidad: Proveedor
+
+## 🏗️ Arquitectura del Sistema
+El proyecto está dividido de la siguiente manera:
+
+- Domain: Interfaces/entidades.
+- Applicacion:Repositorios en memoria y Servicios con lógica de negocio y validaciones.
+- App.ts: Archivo principal de ejecucion.
+
+---
+
+## ⚡ Paradigmas Asíncronos Usados
+- **CREATE (Insertar)** → Callbacks (patrón `error, resultado`).
+- **READ (Consultar)** → Async/Await.
+- **UPDATE (Modificar)** → Promises.
+- **DELETE (Eliminar)** → Async/Await.
+
+---
+
+## 🗂️ Instrucciones de Instalación
+En la terminal
+git clone <url-repositorio>
+cd practica_2
+npm install
+npm run dev
