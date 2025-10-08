@@ -1,0 +1,6 @@
+{
+    "type": "sqlite",
+    "database": "basedatos.sqlite",
+    "entities": ["src/entidades/*.ts"],
+    "synchronize": false
+}
