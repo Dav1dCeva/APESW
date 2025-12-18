@@ -1,0 +1,3 @@
+video aqui abajo
+https://uleam-my.sharepoint.com/:v:/g/personal/e1316944154_live_uleam_edu_ec/IQBY5wx6crW7Sa4LnijXPVgbAd06-hSfs7qDJEyqo1m67No?nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJPbmVEcml2ZUZvckJ1c2luZXNzIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXciLCJyZWZlcnJhbFZpZXciOiJNeUZpbGVzTGlua0NvcHkifX0&e=J32X85
+video aqui arriba
