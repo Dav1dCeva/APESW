@@ -11,7 +11,7 @@ export class WebhookPublisherService {
   private readonly webhookSecret: string;
   private readonly maxRetries = 6;
   private readonly supabase: SupabaseClient | null;
-  private retryDelays = [60000, 300000, 1800000, 7200000, 43200000, 86400000]; // 1m, 5m, 30m, 2h, 12h, 24h
+  private retryDelays = [60000, 300000, 1800000, 7200000, 43200000, 86400000];
 
   constructor(
     private readonly httpService: HttpService,
@@ -34,10 +34,10 @@ export class WebhookPublisherService {
   }
 
   /**
-   * Publica un webhook a múltiples suscriptores (fanout)
-   * @param eventType Tipo de evento (ej: 'detalle.creado')
-   * @param data Datos del evento
-   * @param metadata Metadatos (source, environment, correlation_id)
+   * Publica un webhook a múltiples suscriptores
+   * @param eventType
+   * @param data 
+   * @param metadata 
    */
   async publishWebhook(
     eventType: string,
@@ -69,7 +69,7 @@ export class WebhookPublisherService {
         },
       };
 
-      // 3. Firmar el webhook
+      // 3. Firmar el webhook HMAC-SHA256
       const signature = this.securityService.generateSignature(
         webhook,
         this.webhookSecret,
@@ -110,7 +110,7 @@ export class WebhookPublisherService {
         return;
       }
 
-      // 6. Enviar a cada suscriptor (FANOUT)
+      // 6. Enviar a cada suscriptor 
       for (const subscriber of subscribers) {
         if (!subscriber.is_active) continue;
 

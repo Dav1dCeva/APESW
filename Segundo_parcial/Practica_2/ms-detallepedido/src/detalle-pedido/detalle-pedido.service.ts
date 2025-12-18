@@ -2,7 +2,6 @@ import { Injectable, Inject, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { DetallePedido } from './detalle-pedido.entity';
-import { ClientProxy } from '@nestjs/microservices';
 import { WebhookPublisherService } from '../webhook/webhook-publisher.service';
 
 @Injectable()
@@ -12,8 +11,6 @@ export class DetallePedidoService {
   constructor(
     @InjectRepository(DetallePedido)
     private readonly repo: Repository<DetallePedido>,
-    // PRODUCTO_SERVICE comentado: RabbitMQ no está disponible
-    // @Inject('PRODUCTO_SERVICE') private client: ClientProxy,
     private readonly webhookPublisher: WebhookPublisherService,
   ) {}
 
@@ -32,25 +29,6 @@ export class DetallePedidoService {
       // 2) Generar clave idempotente
       const idempotencyKey = `detalle-${detalle.id}`;
 
-      // 3) Emitir evento al microservicio de Producto via RabbitMQ
-      // COMENTADO: RabbitMQ no está disponible en el entorno actual
-      // try {
-      //   await this.client
-      //     .emit('producto.reservar', {
-      //       idempotencyKey,
-      //       payload: {
-      //         detallePedidoId: detalle.id,
-      //         productoId: detalle.productoId,
-      //         cantidad_solicitada: detalle.cantidad_solicitada,
-      //       },
-      //     })
-      //     .toPromise();
-      //   this.logger.log('✅ Evento RabbitMQ enviado a ms-producto');
-      // } catch (error) {
-      //   this.logger.error(`❌ Error al enviar evento RabbitMQ: ${error.message}`);
-      // }
-
-      // 4) 🔥 PUBLICAR WEBHOOK a Supabase Edge Functions (FANOUT)
       try {
         console.log('📤 Intentando publicar webhook...');
         await this.webhookPublisher.publishWebhook('detalle.creado', {
@@ -75,7 +53,7 @@ export class DetallePedidoService {
         detalle,
       };
     } catch (error) {
-      this.logger.error(`❌ Error al crear detalle: ${error.message}`);
+      this.logger.error(`Error al crear detalle: ${error.message}`);
       throw error;
     }
   }

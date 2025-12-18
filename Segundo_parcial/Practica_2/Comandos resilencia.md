@@ -1,103 +1,7 @@
-# 📊 GUIÓN DE PRESENTACIÓN - Practica_2 Webhooks
+## PARTE 2: DEMOSTRACIÓN FUNCIONAL - HAPPY PATH 
 
-**Tiempo Total: 20 minutos**
+### Setup Previo :
 
----
-
-## ⏱️ PARTE 1: EXPLICACIÓN DE ARQUITECTURA (5 minutos)
-
-### 🎯 Qué decir:
-
-**"Implementé un sistema de webhooks event-driven con 3 patrones de confiabilidad:"**
-
-### 1️⃣ Mostrar Diagrama (30 segundos)
-
-Abre el DEMO.md y muestra esta parte:
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                      CLIENT (curl/Postman)                      │
-└────────────┬──────────────────────────────────────────────────┘
-             │
-    ┌────────▼────────┐              ┌──────────────────┐
-    │ ms-detallepedido│◄──webhook───►│ ms-producto      │
-    │  (Puerto 3002)  │              │  (Puerto 3003)   │
-    └────────┬────────┘              └──────────────────┘
-             │
-    ┌────────▼──────────────────────────────────┐
-    │  PostgreSQL Local (Docker)                │
-    │  - ms_detallepedido (5434)                │
-    │  - ms_producto (5433)                     │
-    └──────────────────────────────────────────┘
-             │
-    ┌────────▼──────────────────────────────────┐
-    │  Supabase PostgreSQL (Cloud)              │
-    │  - webhook_events (registro)              │
-    │  - webhook_deliveries (tracking)          │
-    │  - processed_webhooks (deduplicación)     │
-    │  - dlq_messages (reintentos fallidos)     │
-    └──────────────────────────────────────────┘
-```
-
-**Explica (1 minuto):**
-
-- "Dos microservicios independientes"
-- "Se comunican mediante webhooks (no RPC, no synchronous)"
-- "Cada evento se guarda en Supabase para auditoría"
-
----
-
-### 2️⃣ Los 3 Pilares de Confiabilidad (3 minutos)
-
-**Pilar 1: SEGURIDAD 🔐**
-
-Muestra en Terminal:
-
-```bash
-# En logs de ms-detallepedido verás:
-[WebhookPublisherService] Sending webhook attempt 1/6 to: https://webhook.site/...
-[WebhookPublisherService] ✅ Webhook delivered successfully
-```
-
-**Explica:**
-
-- "Cada webhook se firma con HMAC-SHA256"
-- "Si alguien intenta modificar el webhook, la firma no coincide"
-- "Además validamos timestamp (ventana de 5 minutos anti-replay)"
-
----
-
-**Pilar 2: CONFIABILIDAD 🛡️**
-
-**Explica mientras muestras logs:**
-
-- "Si el primer intento falla, reintentar después de 1 minuto"
-- "Si sigue fallando: 5m, 30m, 2h, 12h, 24h"
-- "Si se agotan 6 intentos → guardar en Dead Letter Queue"
-- "El sistema NUNCA pierde un webhook"
-
----
-
-**Pilar 3: DEDUPLICACIÓN 🎯**
-
-**Explica:**
-
-- "Si el mismo webhook llega 2 veces (por timeout de red)"
-- "El sistema lo detecta por idempotency_key"
-- "Se procesa solo 1 vez, se ignora la copia"
-- "Tabla processed_webhooks lo registra"
-
----
-
-**Fin de Parte 1** ✅
-
----
-
-## ⏱️ PARTE 2: DEMOSTRACIÓN FUNCIONAL - HAPPY PATH (5 minutos)
-
-### 📋 Setup Previo (ANTES de presentar):
-
-**Asegúrate de tener abierto:**
 
 1. **Terminal 1**: Docker corriendo
 
@@ -156,13 +60,6 @@ curl -X POST http://localhost:3002/detalles-pedidos \
   }'
 ```
 
-**Explica mientras se ejecuta:**
-
-- "Envío un POST al primer microservicio"
-- "Crea un detalle de pedido en PostgreSQL local"
-
-**Resultado esperado:**
-
 ```json
 {
   "mensaje": "Detalle creado y eventos enviados",
@@ -177,8 +74,6 @@ curl -X POST http://localhost:3002/detalles-pedidos \
 }
 ```
 
-**Señala Terminal 2 y lee los logs:**
-
 ```
 ✅ Detalle creado: 1
 📤 Intentando publicar webhook...
@@ -187,18 +82,8 @@ Sending webhook attempt 1/6 to: https://webhook.site/b5eea99a-0edc-40c4-b3c8-071
 ✅ Webhook delivered successfully to: https://webhook.site/...
 ```
 
-**Explica:**
 
-- "El detalle se creó en PostgreSQL"
-- "Se generó un evento detalle.creado"
-- "Se publicó a webhook.site"
-- "TODO EN 2 SEGUNDOS"
-
----
-
-### 🧪 TEST 2: Reservar Stock (2 minutos)
-
-**Primero, insertar un producto (si no existe):**
+### TEST 2: Reservar Stock (2 minutos)
 
 ```bash
 PGPASSWORD=postgres psql -h localhost -p 5433 -U postgres -d ms_producto -c "
@@ -234,11 +119,6 @@ curl -X POST http://localhost:3003/productos/reservar \
 }
 ```
 
-**Señala:**
-
-- "Stock pasó de 100 a 98"
-- "Webhook producto.reservado publicado"
-
 **Mira Terminal 3:**
 
 ```
@@ -249,11 +129,10 @@ curl -X POST http://localhost:3003/productos/reservar \
 
 ---
 
-### 🌐 Mostrar webhook.site
+### Mostrar webhook.site
 
 Actualiza la página en el navegador:
 
-**Deberías ver 2 POSTs:**
 
 1. `detalle.creado`
 2. `producto.reservado`
@@ -279,14 +158,8 @@ Body:
 }
 ```
 
-**Explica:**
 
-- "Aquí ves el webhook llegó con su firma HMAC"
-- "El servidor de webhook.site lo recibió"
-
----
-
-### 📊 Mostrar Supabase
+### Mostrar Supabase
 
 En Supabase Dashboard, SQL Editor, ejecuta:
 
@@ -305,13 +178,6 @@ evt_...1    | detalle.creado       | detalle-1-2025-12-16T...    | success
 evt_...2    | producto.reservado   | producto-10-2025-12-16T...  | success
 ```
 
-**Explica:**
-
-- "Aquí ves el registro de TODOS los eventos"
-- "Incluso si el cliente se desconecta, los eventos están guardados"
-- "Cada evento tiene un idempotency_key único"
-
----
 
 **Fin de Parte 2** ✅
 

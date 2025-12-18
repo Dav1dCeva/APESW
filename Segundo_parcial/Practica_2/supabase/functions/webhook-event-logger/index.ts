@@ -17,16 +17,14 @@ const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
 const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!);
 
-// ====================================================
 // Función auxiliar: Validar firma HMAC
-// ====================================================
 async function validateSignature(
   body: string,
   signature: string,
   secret: string
 ): Promise<boolean> {
   try {
-    // Extraer hash de la firma (formato: sha256=abc123...)
+    // Extraer hash de la firma 
     const receivedHash = signature.replace("sha256=", "");
 
     // Crear HMAC con el secret
